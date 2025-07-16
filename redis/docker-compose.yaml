@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  redis:
+    image: 'redis:alpine'
+    container_name: loc-redis
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'loc-redis-data:/data'
+    networks:
+      - loc-redis-net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+networks:
+  loc-redis-net:
+    driver: bridge
+
+volumes:
+  loc-redis-data:
+    driver: local

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  minio:
+    image: 'minio/minio:latest'
+    container_name: loc-minio
+    ports:
+      - '${FORWARD_MINIO_PORT:-9000}:9000'
+      - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
+    environment:
+      MINIO_ROOT_USER: '${MINIO_ROOT_USER}'
+      MINIO_ROOT_PASSWORD: '${MINIO_ROOT_PASSWORD}'
+    volumes:
+      - 'loc-minio-data:/data'
+    networks:
+      - loc-minio-net
+    command: minio server /data --console-address ":8900"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  loc-minio-data:
+    driver: local
+
+networks:
+  loc-minio-net:
+    driver: bridge
